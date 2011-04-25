@@ -1,0 +1,20 @@
+NINJA_HOME="$(dirname $0)/.."
+
+# Source ninjapack zshrc
+
+if [[ -e $HOME/.zshrc && $(grep ninja $HOME/.zshrc) ]]; then
+	echo ".zshrc already sources ninja"
+else
+	echo "source $NINJA_HOME/zsh-init.zsh"  | cat - $HOME/.zshrc > /tmp/zshrc.tmp && mv /tmp/zshrc.tmp $HOME/.zshrc
+fi
+
+# Color nano
+for rc in $(ls $NINJA_HOME/nanorc)
+do
+	rc="$NINJA_HOME/nanorc/$rc"
+	echo $rc
+	if [[  !(-e $HOME/.nanorc) || !$(grep "include $rc" $HOME/.nanorc) ]]; then
+			echo "include $rc" >> $HOME/.nanorc
+	fi
+done
+
