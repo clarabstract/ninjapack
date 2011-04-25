@@ -7,6 +7,7 @@ zstyle ':completion:*' list-colors ''
 
 # Visible select in the completions
 zstyle ':completion:*:*:*:*:*' menu select
+zstyle ':completion:*' verbose yes
 
 
 # Extra hosts to complete
@@ -19,4 +20,3 @@ hosts=(
   localhost
 )
 zstyle ':completion:*:hosts' hosts $hosts
-

@@ -1,0 +1,10 @@
+TARGET_HOST=$1
+
+KEY=`cat $HOME/.ssh/id_rsa.pub` &&
+ssh $TARGET_HOST "echo $KEY >> ~/.ssh/authorized_keys" && 
+echo "SSH key added"
+
+
+scp -r $NINJA_HOME $TARGET_HOST:~/.ninja &&
+ssh $TARGET_HOST 'zsh ~/.ninja/bin/ninstall' && 
+echo "Ninja installed"
