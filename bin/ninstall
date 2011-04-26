@@ -22,3 +22,6 @@ do
 	fi
 done
 
+# Git config
+
+ln -s $NINJA_HOME/gitconfig.conf $HOME/.gitconfig
