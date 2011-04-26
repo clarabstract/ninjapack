@@ -1,0 +1,56 @@
+h1. Ruy's Ninja-Pack of Cool Shell Tools For Attractive People
+
+This is a collection of random crap I am tired of setting up every time I get a new shell. It assumes a preference for the following tools:
+
+ * ZSH
+ * git
+ * nano (if you're a fancy vim/emacs person why do you need a shell anyway?)
+ * SSH with key logins
+
+It also assumes you like colors. 
+
+h2. Usage
+
+h3. Initial Install
+
+You only have to do this the first time:
+
+bc. git clone git@github.com:rubyruy/ninjapack.git ~/.ninja
+
+Then install (this updates various .files in your home directory):
+
+bc. .ninja/bin/ninstall
+
+If you haven't changed your shell yet, now is a good time to run @chsh@. If you're already using @zsh@, @source .zshrc@
+
+h3. Subsequent hosts
+
+Rather then repeat the above steps for additional hosts you wish to connect to, you can use the provided command @npush@. It takes a hostname, optionally with username, same as the @ssh@ command. e.g.
+
+bc. npush ruy@yourmom.example.com
+
+You will be asked to type in your SSH password. 
+
+This is what cool shit is about to happen:
+
+ * Your current id_rsa.pub is added to the hosts's known_hosts (for SSH key login)
+ * The current checkout of ninjapack is copied over to the new host (this means if you're using a forked copy, the new host can be updated from your remote rather then mine)
+ * @ninstall@ is ran as above
+
+Happy days!
+
+h2. Forking and Updating
+
+You are *very encouraged* to use a fork rather then source. At the very least you will want to change your default @.ninja/gitconfig.conf@ user and email to thine own self. (would be nice if this wasn't required though...)
+
+If you want to update a host from upstream (be it mine or your fork) simply @git pull@ using the usual methods and then re-run @ninstall@.
+
+h2. Known broken shit
+
+ * @zsh 4.3.9@ (i think) or higher is require and will silently fail otherwise as it lacks smart handling of @PROMPT@ colors.
+ * I'm relying on @zkbd@ to handle fucked up terminals (_achem OSX_) which turns out to be a pain in the ass. This is why you have to type in all sort sof keys upon first startup (maybe). I hope to get rid of this.
+ 
+h2. Short term future wishlist
+
+ * SVN support, _grumble grumble_
+ * Better completions for manage.py (that don't rely on hard-coding known switches if possible)
