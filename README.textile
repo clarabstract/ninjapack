@@ -33,7 +33,7 @@ You will be asked to type in your SSH password.
 
 This is what cool shit is about to happen:
 
- * Your current id_rsa.pub is added to the hosts's known_hosts (for SSH key login)
+ * Your current @id_rsa.pub@ is added to the hosts's @authroized_keys@ (for SSH key login)
  * The current checkout of ninjapack is copied over to the new host (this means if you're using a forked copy, the new host can be updated from your remote rather then mine)
  * @ninstall@ is ran as above
 
