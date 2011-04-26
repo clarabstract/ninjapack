@@ -7,6 +7,8 @@ zstyle ':completion:*' list-colors ''
 
 # Visible select in the completions
 zstyle ':completion:*:*:*:*:*' menu select
+
+# Show verbose opt help
 zstyle ':completion:*' verbose yes
 
 
@@ -20,3 +22,6 @@ hosts=(
   localhost
 )
 zstyle ':completion:*:hosts' hosts $hosts
+
+# ln doesn't know about completions by default :(
+compdef _gnu_generic ln

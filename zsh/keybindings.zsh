@@ -32,10 +32,15 @@ unfunction zkbd_file; unset keyfile ret
 
 
 bindkey  "\e${key[Left]}"   backward-word
+bindkey  "^[[1;3D"   backward-word
+
 bindkey  "\e${key[Right]}"   forward-word
+bindkey  "^[[1;3C"   forward-word
 bindkey  "\ez"   undo
 bindkey  "\eZ"   redo
 bindkey  "\ey"   redo
+bindkey   "\e?"	run-help
+bindkey "\e${key[Backspace]}" backward-kill-word
 
 # by default: export WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>'
 # we take out the slash, period, angle brackets, dash here.
