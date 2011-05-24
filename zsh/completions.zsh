@@ -25,3 +25,6 @@ zstyle ':completion:*:hosts' hosts $hosts
 
 # ln doesn't know about completions by default :(
 compdef _gnu_generic ln
+
+zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
+zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
