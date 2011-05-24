@@ -1,7 +1,7 @@
 TARGET_HOST=$1
 
 KEY=`cat $HOME/.ssh/id_rsa.pub` &&
-ssh $TARGET_HOST "echo $KEY >> ~/.ssh/authorized_keys" && 
+ssh $TARGET_HOST "mkdir -p ~/.ssh/ && echo $KEY >> ~/.ssh/authorized_keys" && 
 echo "SSH key added"
 
 
