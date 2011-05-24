@@ -3,6 +3,8 @@ export NINJA_ZSH="$NINJA_HOME/zsh"
 
 export PATH="$PATH:$NINJA_HOME/bin"
 
+setopt autocd
+
 source $NINJA_ZSH/osx.zsh
 source $NINJA_ZSH/keybindings.zsh
 source $NINJA_ZSH/prompt.zsh
