@@ -23,5 +23,9 @@ do
 done
 
 # Git config
+if [[ ! -e $HOME/.gitconfig ]]
+then
+    ln -s $NINJA_HOME/gitconfig.conf $HOME/.gitconfig
+fi
 
 ln -s $NINJA_HOME/gitconfig.conf $HOME/.gitconfig
