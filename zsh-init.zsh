@@ -8,6 +8,7 @@ setopt autocd
 source $NINJA_ZSH/osx.zsh
 source $NINJA_ZSH/keybindings.zsh
 source $NINJA_ZSH/prompt.zsh
+source $NINJA_ZSH/termwindow.zsh
 source $NINJA_ZSH/history.zsh
 source $NINJA_ZSH/completions.zsh
 source $NINJA_ZSH/colors.zsh
