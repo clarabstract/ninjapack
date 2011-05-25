@@ -6,7 +6,9 @@ export LANG=${LANG:-en_CA.UTF-8}
 
 bindkey "\e[3~" delete-char             # Del
 bindkey "\e[1;5D" backward-word         # Ctrl + Left
+bindkey "\e[OD" backward-word         
 bindkey "\e[1;5C" forward-word          # Ctrl + Right
+bindkey "\e[OC" forward-word          
 bindkey "\e[3;5~" kill-word             # Ctrl + Backspace
 bindkey "\e[Z" reverse-menu-complete    # Shift+Tab
 
