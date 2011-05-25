@@ -28,4 +28,16 @@ then
     ln -s $NINJA_HOME/gitconfig.conf $HOME/.gitconfig
 fi
 
-ln -s $NINJA_HOME/gitconfig.conf $HOME/.gitconfig
+# SSH config
+ssh_configs=("ForwardAgent yes" "SendEnv LANG LC_*")
+
+mkdir -p "$HOME/.ssh/"
+for conf in $ssh_configs
+do
+    if [[ -e "$HOME/.ssh/config" ]] && grep -q "$conf" $HOME/.ssh/config
+    then
+        echo "$HOME/.ssh/config already includes $conf"
+    else
+        echo $conf >> $HOME/.ssh/config
+    fi
+done

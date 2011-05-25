@@ -1,4 +1,9 @@
 
+# Set default LANG if something fucked up and it wasn't set 
+export LANG=${LANG:-en_CA.UTF-8}
+
+
+
 bindkey "\e[3~" delete-char             # Del
 bindkey "\e[1;5D" backward-word         # Ctrl + Left
 bindkey "\e[1;5C" forward-word          # Ctrl + Right
