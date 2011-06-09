@@ -13,3 +13,4 @@ source $NINJA_ZSH/history.zsh
 source $NINJA_ZSH/completions.zsh
 source $NINJA_ZSH/colors.zsh
 
+autoload -U zed
