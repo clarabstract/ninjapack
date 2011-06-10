@@ -1,5 +1,5 @@
 if [[ -e /usr/bin/mate ]]; then
-	export EDITOR=/usr/bin/mate
+	export EDITOR="/usr/bin/mate -w"
 elif [[ -e /usr/bin/nano ]]; then
 	export EDITOR=/usr/bin/nano
 else
