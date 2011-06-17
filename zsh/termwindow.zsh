@@ -31,5 +31,5 @@ function precmd {
 
 # For commands
 function preexec {
-  title "$(user_portion)%m > $1"  "$(user_portion)%m:%~ > $1" 
+  title "$(user_portion)%m > %~"  "$(user_portion)%m:%~ > %~" 
 }
