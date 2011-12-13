@@ -14,3 +14,4 @@ source $NINJA_ZSH/termwindow.zsh
 source $NINJA_ZSH/history.zsh
 source $NINJA_ZSH/completions.zsh
 source $NINJA_ZSH/colors.zsh
+source $NINJA_ZSH/editor.zsh
