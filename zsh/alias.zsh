@@ -1,0 +1,11 @@
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias cd..='cd ..'
+alias jerbs='jobs'
+alias woo='fortune'
+
+alias ll='ls -alh --color=auto'
+alias la='ls -A --color=auto'
+alias l='ls -CFlh --color=auto'
+alias l.='ls -d .* --color=auto'
