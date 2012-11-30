@@ -1,162 +1,198 @@
-#!/usr/bin/env ruby
-# encoding: UTF-8
+#!/usr/bin/env bash
 
-$VERBOSE = true                         # -w
-$KCODE   = "U" if RUBY_VERSION < "1.9"  # -KU
+# rmate.sh
+# Copyright (C) 2011 by Harald Lapp <harald@octris.org>
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'optparse'
-require 'socket'
-require 'fileutils'
+#
+# This script can be found at:
+# https://github.com/aurora/rmate
+#
 
-VERSION_STRING = 'rmate version 1.3 (2011-10-18)'
+#
+# This script is a pure bash compatible shell script implementing remote
+# textmate functionality
+#
 
-class Settings
-  attr_accessor :host, :port, :wait, :force, :verbose
+# init
+# 
+hostname=`hostname`
+filepath=""
 
-  def initialize
-    @host, @port = '10.175.132.130', 52698
+host="${RMATE_HOST:-localhost}"
+port="${RMATE_PORT:-52698}"
+verbose=false
+nowait=true
+force=false
 
-    @host = ENV['RMATE_HOST'].to_s if ENV.has_key? 'RMATE_HOST'
-    @port = ENV['RMATE_PORT'].to_i if ENV.has_key? 'RMATE_PORT'
+# process command-line parameters
+#
+function showusage {
+    echo "usage: $0 [-H host-name] [-p port-number] [-w] [-f] [-v] file-path
 
-    if @host == 'auto' and (conn = ENV['SSH_CONNECTION'])
-      @host = conn.split(' ').first
-    end
+-H  connect to host (default: $host)
+-p  port number to use for connection (default: $port)
+-w  wait for file to be closed by TextMate
+-f  open even if file is not writable
+-v  verbose logging messages
+-h  display this usage information
+"
+}
 
-    @wait    = false
-    @force   = false
-    @verbose = false
+function log {
+    if [[ $verbose = true ]]; then
+        echo "$@" 1>&2
+    fi
+}
 
-    read_disk_settings
-    parse_cli_options
-  end
+while getopts H:p:wfvh OPTIONS; do
+    case $OPTIONS in
+        H)
+            host=$OPTARG;;
+        p)
+            port=$OPTARG;;
+        w) 
+            nowait=false;;
+        f)
+            force=true;;
+        v)
+            verbose=true;;
+        h)
+            showusage
+            exit 1;;
+        ?)
+            showusage
+            exit 1;;
+        *)
+            showusage
+            exit 1;;
+    esac
+done
 
-  def read_disk_settings
-    # TODO
-  end
+filepath="${@:$OPTIND}"
 
-  def parse_cli_options
-    OptionParser.new do |o|
-      o.on(           '--host=name',       "Connect to host.", "Use 'auto' to detect the host from SSH.", "Defaults to #{@host}.") { |v| @host    = v          }
-      o.on('-p',      '--port=#', Integer, "Port number to use for connection.", "Defaults to #{@port}.")                       { |v| @port    = v          }
-      o.on('-w',      '--[no-]wait',       'Wait for file to be closed by TextMate.')                                        { |v| @wait    = v          }
-      o.on('-f',      '--force',           'Open even if the file is not writable.')                                         { |v| @force   = v          }
-      o.on('-v',      '--verbose',         'Verbose logging messages.')                                                      { |v| @verbose = v          }
-      o.on_tail('-h', '--help',            'Show this message.')                                                             { puts o; exit              }
-      o.on_tail(      '--version',         'Show version.')                                                                  { puts VERSION_STRING; exit }
-      o.parse!
-    end
-  end
-end
+if [ "$filepath" = "" ]; then
+    showusage
+    exit 1
+fi
 
-class Command
-   def initialize(name)
-     @command   = name
-     @variables = {}
-     @data      = nil
-     @size      = nil
-   end
+realpath="`cd \`dirname $filepath\`; pwd -P`/$filepath"
 
-   def []=(name, value)
-     @variables[name] = value
-   end
+if [ -f "$filepath" ] && [ ! -w "$filepath" ]; then
+    if [[ $force = false ]]; then
+        echo "File $filepath is not writable! Use -f to open anyway."
+        exit 1
+    elif [[ $verbose = true ]]; then
+        log "File $filepath is not writable! Opening anyway."
+    fi
+fi
 
-   def read_file(path)
-     @size = File.size(path)
-     @data = File.open(path, "rb") { |io| io.read(@size) }
-   end
+#------------------------------------------------------------
+# main
+#------------------------------------------------------------
+function handle_connection {
+    local cmd
+    local name
+    local value
+    local token
+    local tmp
+    
+    while read 0<&3; do
+        REPLY="${REPLY#"${REPLY%%[![:space:]]*}"}"
+        REPLY="${REPLY%"${REPLY##*[![:space:]]}"}"
 
-   def send(socket)
-     socket.puts @command
-     @variables.each_pair do |name, value|
-       value = 'yes' if value === true
-       socket.puts "#{name}: #{value}"
-     end
-     if @data
-       socket.puts "data: #{@size}"
-       socket.puts @data
-     end
-     socket.puts
-   end
-end
+        cmd=$REPLY
 
-def handle_save(socket, variables, data)
-  path = variables["token"]
-  $stderr.puts "Saving #{path}" if $settings.verbose
-  begin
-    FileUtils.cp(path, "#{path}~") if File.exist? path
-    File.open(path, 'wb') { |file| file << data }
-    File.unlink("#{path}~")        if File.exist? "#{path}~"
-  rescue
-    # TODO We probably want some way to notify the server app that the save failed
-    $stderr.puts "Save failed! #{$!}" if $settings.verbose
-  end
-end
+        token=""
+        tmp=""
 
-def handle_close(socket, variables, data)
-  path = variables["token"]
-  $stderr.puts "Closed #{path}" if $settings.verbose
-end
+        while read 0<&3; do
+            REPLY="${REPLY#"${REPLY%%[![:space:]]*}"}"
+            REPLY="${REPLY%"${REPLY##*[![:space:]]}"}"
 
-def handle_cmd(socket)
-  cmd = socket.readline.chomp
+            if [ "$REPLY" = "" ]; then
+                break
+            fi
+            
+            name="${REPLY%%:*}"
+            value="${REPLY##*:}"
+            value="${value#"${value%%[![:space:]]*}"}"      # fix textmate syntax highlighting: "
+                        
+            case $name in
+                "token")
+                    token=$value
+                    ;;
+                "data")
+                    if [ "$tmp" = "" ]; then
+                        tmp="/tmp/rmate.$RANDOM.$$"
+                        touch "$tmp"
+                    fi
+                
+                    dd bs=$value count=1 <&3 >>"$tmp" 2>/dev/null
+                    ;;
+                *)
+                    ;;
+            esac
+        done
 
-  variables = {}
-  data = ""
+        if [[ "$cmd" = "close" ]]; then
+            log "Closing $token"
+        elif [[ "$cmd" = "save" ]]; then
+            log "Saving $token"
 
-  while line = socket.readline.chomp
-    break if line.empty?
-    name, value     = line.split(': ', 2)
-    variables[name] = value
-    data << socket.read(value.to_i) if name == "data"
-  end
-  variables.delete("data")
+            cat "$tmp" >  "$token"
+            rm "$tmp"		
+        fi
+    done
+    
+    log "Done"
+}
 
-  case cmd
-  when "save"   then handle_save(socket, variables, data)
-  when "close"  then handle_close(socket, variables, data)
-  else          abort "Received unknown command “#{cmd}”, exiting."
-  end
-end
+# connect to textmate and send command
+#
+exec 3<> /dev/tcp/$host/$port
 
-def connect_and_handle_cmds(host, port, cmds)
-  socket = TCPSocket.new(host, port)
-  server_info = socket.readline.chomp
-  $stderr.puts "Connect: ‘#{server_info}’" if $settings.verbose
+if [ $? -gt 0 ]; then
+	echo "Unable to connect to TextMate on $host:$port"
+	exit 1
+fi
 
-  cmds.each { |cmd| cmd.send(socket) }
+read server_info 0<&3
 
-  socket.puts "."
-  handle_cmd(socket) while !socket.eof?
-  socket.close
-  $stderr.puts "Done" if $settings.verbose
-end
+log $server_info
 
-## MAIN
+echo "open" 1>&3
+echo "display-name: $hostname:$filepath" 1>&3
+echo "real-path: $realpath" 1>&3
+echo "data-on-save: yes" 1>&3
+echo "re-activate: yes" 1>&3
+echo "token: $filepath" 1>&3
 
-$settings = Settings.new
-
-## Parse arguments.
-cmds = []
-ARGV.each do |path|
-  abort "File #{path} is not writable! Use -f/--force to open anyway." unless $settings.force or File.writable? path or not File.exists? path
-  $stderr.puts "File #{path} is not writable. Opening anyway." if not File.writable? path and File.exists? path and $settings.verbose
-  cmd                 = Command.new("open")
-  cmd['display-name'] = "#{Socket.gethostname}:#{path}"
-  cmd['real-path']    = File.expand_path(path)
-  cmd['data-on-save'] = true
-  cmd['re-activate']  = true
-  cmd['token']        = path
-  cmd.read_file(path)               if File.exist? path
-  cmd['data']         = "0"     unless File.exist? path
-  cmds << cmd
-end
-
-unless $settings.wait
-  pid = fork do
-    connect_and_handle_cmds($settings.host, $settings.port, cmds)
-  end
-  Process.detach(pid)
+if [ -f $filepath ]; then
+    filesize=`ls -l $filepath | awk '{print $5}'`
+    echo "data: $filesize" 1>&3
+    cat $filepath 1>&3
 else
-  connect_and_handle_cmds($settings.host, $settings.port, cmds)
-end
+    echo "data: 0" 1>&3
+fi
+
+echo 1>&3
+echo "." 1>&3
+
+if [[ $nowait = true ]]; then
+    ( (handle_connection &) &)
+else
+    handle_connection
+fi
