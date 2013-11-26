@@ -1,0 +1,5 @@
+\pset null '(null)'
+\set HISTSIZE 2000
+\encoding unicode
+\pset pager off
+\x auto

@@ -28,6 +28,12 @@ then
     ln -s $NINJA_HOME/gitconfig.conf $HOME/.gitconfig
 fi
 
+# psql defaults
+if [[ ! -e $HOME/.psqlrc ]]
+then
+    ln -s $NINJA_HOME/psqlrc $HOME/.psqlrc
+fi
+
 # SSH config
 ssh_configs=("ForwardAgent yes" "SendEnv LANG LC_*")
 
