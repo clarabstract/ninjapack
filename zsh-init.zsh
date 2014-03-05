@@ -3,6 +3,8 @@ export NINJA_ZSH="$NINJA_HOME/zsh"
 
 export PATH="$PATH:$NINJA_HOME/bin"
 
+export GIT_MERGE_AUTOEDIT="no"
+
 setopt autocd
 
 autoload -U zed
