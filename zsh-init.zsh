@@ -17,3 +17,7 @@ source $NINJA_ZSH/history.zsh
 source $NINJA_ZSH/completions.zsh
 source $NINJA_ZSH/colors.zsh
 source $NINJA_ZSH/editor.zsh
+
+# Deal with square bracket args:
+alias rake="noglob rake"
+alias cap="noglob cap"
