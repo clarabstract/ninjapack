@@ -9,7 +9,7 @@ bindkey "\eOD" backward-word
 bindkey "\e[1;5C" forward-word          # Ctrl + Right
 bindkey "\eOC" forward-word
 bindkey "\e[3;5~" kill-word             # Ctrl + Backspace
-bindkey "^?" backward-kill-word # Ctrl+Backspace with putty
+#bindkey "^?" backward-kill-word # Ctrl+Backspace with putty
 bindkey "\e[Z" reverse-menu-complete    # Shift+Tab
 bindkey "\e[H" beginning-of-line      # Home
 bindkey "\e[F" end-of-line      # End

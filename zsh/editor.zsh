@@ -1,4 +1,6 @@
-if [[ -e /usr/bin/mate2 ]]; then
+if [[ -e "$HOME/bin/subl" ]]; then
+	export EDITOR="$HOME/bin/subl -w"
+elif [[ -e /usr/bin/ruby ]]; then
 	export EDITOR="/usr/bin/mate2 -w"
 elif [[ -e /usr/bin/ruby ]]; then
 	export EDITOR="$NINJA_HOME/bin/rmate -w"

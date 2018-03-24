@@ -1,7 +1,7 @@
 export NINJA_HOME=${NINJA_HOME:=$(cd $(dirname $0)/;pwd)}
 export NINJA_ZSH="$NINJA_HOME/zsh"
 
-export PATH="$PATH:$NINJA_HOME/bin"
+export PATH="$PATH:$NINJA_HOME/bin:$HOME/bin"
 
 export GIT_MERGE_AUTOEDIT="no"
 
